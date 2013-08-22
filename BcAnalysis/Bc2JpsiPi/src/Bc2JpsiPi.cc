@@ -968,11 +968,11 @@ void Bc2JpsiPi::MonteCarloStudies(const edm::Event& iEvent)
 		if( dauId == JpsiId ) 
 		{
 		  h1_["PTJPSI"]->Fill(des->momentum().Rho());		
-		  xsecBc  = des->vertex().x()/10.;
+		  xsecBc  = des->vertex().x();
 		  SVMC[0] = xsecBc;
-		  ysecBc  = des->vertex().y()/10.;
+		  ysecBc  = des->vertex().y();
 		  SVMC[1] = ysecBc;
-		  zsecBc  = des->vertex().z()/10.; 
+		  zsecBc  = des->vertex().z(); 
 		  SVMC[2] = zsecBc;
 		  boolJpsi = true;
 

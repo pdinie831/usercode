@@ -229,7 +229,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (boolTrg_) 	std::cout << triggerNames_.triggerName(itrig) << std::endl;
 	 if((triggerNames_.triggerName(itrig) == pString_["HLTname1"]) || 
 		(triggerNames_.triggerName(itrig) == pString_["HLTname2"]) ||
-		(triggerNames_.triggerName(itrig) == pString_["HLTname3"]) 
+		(triggerNames_.triggerName(itrig) == pString_["HLTname3"]) ||
+		(triggerNames_.triggerName(itrig) == pString_["HLTname4"]) 
 	 ) 
 	{
 	  goodTrig.push_back(itrig) ;
@@ -237,7 +238,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   if ( goodTrig.size() == 0 ) {
 	cout << __LINE__ << "\tthe required trigger paths are not present is this dataset!" << endl;
-	std::cout << "Looking for " << pString_["HLTname1"] << "," << pString_["HLTname2"] << "," << pString_["HLTname3"]  << std::endl;
+	std::cout << "Looking for " << pString_["HLTname1"] << "," << pString_["HLTname2"] << "," << pString_["HLTname3"] << "," << pString_["HLTname4"]  << std::endl;
 	return ;
   }
   bool triggerAccepted = false ;

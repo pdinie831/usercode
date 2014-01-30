@@ -1,14 +1,3 @@
-// -*- C++ -*-
-// Package:    BcAnalysis
-// Class:      BcAnalysis
-// 
-/**\class  BcAnalysis BcAnalysis.cc HeavyFlavor/BcAnalysis/src/BcAnalysis.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
 // Original Author:  Silvia Taroni & Sandra Malvezzi
 // Put in local cvs
 // Added in cvs milano
@@ -254,15 +243,16 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   {
      reco::TrackRef checkTrk(tracks,tracksIt) ;										        
 	 if (! checkTrk->quality(reco::TrackBase::highPurity))		continue;
+     if (checkTrk->pt()  				  					< pDouble_["cut_Pt_Trk"])			   		continue;	        
+     if (fabs(checkTrk->eta())			  					> pDouble_["cut_eta_pi"])			  		continue;	   						  
+
      bool flag = false ; 												        
      for (reco::MuonCollection::const_iterator mu =recoMuons->begin(); mu!=recoMuons->end(); mu++)			        
      {														        
        if (mu->track().get()!= 0 && mu->track().get() == checkTrk.get()) { flag=true; break;}
-//        if (mu->innerTrack().get()!= 0 && deltaR(mu->innerTrack().get()->eta(), mu->innerTrack().get()->phi(), checkTrk->eta(), checkTrk->phi()) < 0.001)	std::cout <<" can be a muon!!" << std::endl;		        
+       if (mu->innerTrack().get()!= 0 && mu->innerTrack().get() == checkTrk.get()) { flag=true; break;}		        
      }														        
      if (flag)												   											continue;	        
-     if (checkTrk->pt()  				  					< pDouble_["cut_Pt_Trk"])			   		continue;	        
-     if (fabs(checkTrk->eta())			  					> pDouble_["cut_eta_pi"])			  		continue;	   						  
 //      if (checkTrk->numberOfValidHits()	  					< pDouble_["cut_nhits"] )			   		continue;	   					   
 //      if (checkTrk->hitPattern().numberOfValidPixelHits() 	< pDouble_["numberOfValidPixelHitsCut"]  )	continue;	        
 //      if (checkTrk->normalizedChi2()			 			    > pDouble_["cut_chi2n"])			   		continue; 	        
@@ -382,6 +372,11 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	  }
 	  h1_["filter"      ]->Fill(counter++);//2
 
+      //Trigger requirements: mass and pT
+	  if (jpsiV.M() < 2.8) 															continue;
+	  if (jpsiV.M() > 3.35) 														continue;
+	  if (jpsiV.pt() <= pDouble_["ptJpsi"])											continue;
+
 	  //Fit to the dimuon vertex
 	  KalmanVertexFitter 			fitterMuMu;
 	  TransientVertex    			mumuVertex;
@@ -408,10 +403,9 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	  h1_["ElsigJpsi"   ]-> Fill(elsigJpsi); 
 	  h1_["filter"      ]-> Fill(counter++);//3
 
-      //Trigger requirements: CL and pT
+      //Trigger requirements: CL 
 	  float ClJpsiVtx(TMath::Prob(mumuVertex.totalChiSquared(),(int)(mumuVertex.degreesOfFreedom())));
 	  if (ClJpsiVtx  <     pDouble_["cut_cl_Jpsi"])            						continue;
-	  if (jpsiV.pt() <=    pDouble_["ptJpsi"])										continue;
 	  if (fabs(jpsiV.M() - pDouble_["JPsiMassPDG"]) > pDouble_["JPsiMassWindow"]) 	continue;
 
 	  h1_["InvMassJPsiCuts"   ]->Fill(jpsiV.M());
@@ -475,12 +469,12 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		double Pi1_3DIpPV                   = pion1_IPPairPV.first;
 		double Pi1_3DIpPVSignificance       = pion1_IPPairPV.second;
 		//Require small impact parameter significance wrt Jpsi vertex
-		if(Pi1_3DIpPVSignificance > 10) 								continue;
+		if(Pi1_3DIpPVSignificance > 8) 								continue;
 
 		//Require trk in a cone wrt Jpsi track
 		double DRPi1 =  deltaR(firstPionTrackCand->eta(),firstPionTrackCand->phi(),jpsiTV->Eta(),jpsiTV->Phi());
 		h1_["deltaRPi1"     ]-> Fill(DRPi1);
-		if (DRPi1 > 5) continue;
+		if (DRPi1 > 4) continue;
 
 		//Loop on second pion
 		for (newTracksDef::const_iterator it_pi2=it_pi1; it_pi2!=qualityTracks.end(); ++it_pi2)
@@ -508,12 +502,12 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		  double Pi2_3DIpPV                   = pion2_IPPairPV.first;
 		  double Pi2_3DIpPVSignificance       = pion2_IPPairPV.second;
 		  //Require small impact parameter significance wrt Jpsi vertex
-		  if(Pi2_3DIpPVSignificance > 10) 								continue;
+		  if(Pi2_3DIpPVSignificance > 8) 								continue;
 		  
 		  //Require trk in a cone wrt Jpsi track
 		  double DRPi2 =  deltaR(secondPionTrackCand->eta(),secondPionTrackCand->phi(),jpsiTV->Eta(),jpsiTV->Phi());
 		  h1_["deltaRPi2"     ]-> Fill(DRPi2);
-		  if (DRPi2 > 5) 												continue;
+		  if (DRPi2 > 4) 												continue;
 
 		  //Loop on third pion
 		  for (newTracksDef::const_iterator it_pi3=it_pi2; it_pi3!=qualityTracks.end(); ++it_pi3)
@@ -541,18 +535,18 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			double Pi3_3DIpPV                   = pion3_IPPairPV.first;
 			double Pi3_3DIpPVSignificance       = pion3_IPPairPV.second;
 			//Require small impact parameter significance wrt Jpsi vertex
-			if(Pi3_3DIpPVSignificance> 10) 									continue;
+			if(Pi3_3DIpPVSignificance> 8) 									continue;
 
 			//Require trk in a cone wrt Jpsi track
 			double DRPi3 =  deltaR(thirdPionTrackCand->eta(),thirdPionTrackCand->phi(),jpsiTV->Eta(),jpsiTV->Phi());
 			h1_["deltaRPi3"     ]-> Fill(DRPi3);
-			if (DRPi3 > 5) continue;
+			if (DRPi3 > 4) continue;
 
-			if(iEvent.isRealData())
+			if(iEvent.isRealData())     
 			{  	  
-			 if (fabs(firstPionTrackCand ->charge()+
+			 if (!(fabs(firstPionTrackCand ->charge()+
 				   secondPionTrackCand->charge()+
-				   thirdPionTrackCand ->charge()) == 1 )					continue ;
+				   thirdPionTrackCand ->charge())) == 1 )					continue ;
 			 }
 			if(!iEvent.isRealData())
 			{  	  
@@ -685,7 +679,7 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		   //Evaluate best pointing PV
 		   float pointPVCl =   0 ;
 		   double Cosine 	= -10 ;
-		   TransientVertex pointPVtrn;
+		   TransientVertex pointPVtrn, checkPvs;
 		   reco::Vertex pointPV;
 		   for (reco::VertexCollection::const_iterator pvIt = primvtx.begin(); pvIt!=primvtx.end(); pvIt++)		
 		   {
@@ -702,19 +696,26 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			 }
 			 h1_["PointPVDelTrks"	] -> Fill(iPV.tracksSize() - bcLess.size());
 
-			 std::vector<reco::TransientTrack> primaryTks_tks;
-			 if(bcLess.size() < 2)                            				continue;
-			 for (reco::TrackCollection::const_iterator iitrk=bcLess.begin(); iitrk!=bcLess.end();iitrk++)
-			 {
-			  primaryTks_tks.push_back((*theB).build(*iitrk));
-			 }
+			 float iPVCl;
+// 			 if (iPV.tracksSize() - bcLess.size() == 0 && iPV.isValid())
+// 			 {
+// 			   iPVCl = iPV.normalizedChi2();
+// 			 }
+// 			 else {
+			   if(bcLess.size() < 2)                            				continue;
+			   std::vector<reco::TransientTrack> primaryTks_tks;
+			   for (reco::TrackCollection::const_iterator iitrk=bcLess.begin(); iitrk!=bcLess.end();iitrk++)
+			   {
+				primaryTks_tks.push_back((*theB).build(*iitrk));
+			   }
+			   AdaptiveVertexFitter checkFitter;
+			   checkPvs = checkFitter.vertex(primaryTks_tks);
+			   if (!checkPvs.isValid()) 							  			continue;
+			   iPVCl = TMath::Prob(checkPvs.totalChiSquared(),(int)(checkPvs.degreesOfFreedom()));
+			   iPV = checkPvs;	
+// 			 }
 
-			 AdaptiveVertexFitter checkFitter;
-			 TransientVertex checkPvs = checkFitter.vertex(primaryTks_tks);
-			 if (!checkPvs.isValid()) 							  			continue;
-			 float iPVCl(TMath::Prob(checkPvs.totalChiSquared(),(int)(checkPvs.degreesOfFreedom())));
 			 if (iPVCl <= pDouble_["cut_cl_PV"]) 			  				continue; 
-			 iPV = checkPvs;	
 			 if(!(iPV.isValid())) 							  				continue;
 
 			 double idx  = SVPos[0] - iPV.x();
@@ -792,7 +793,7 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		   BcTreeCand theNewCand;
 
 		   //Bc cand
-		   theNewCand.SetBcCand 			(*recoBc															);
+		   theNewCand.SetBc		 			(*recoBc															);
 		   //Jpsi cand
 		   theNewCand.SetJpsi 				(*recoJpsi 															);
 		   theNewCand.SetJpsiV				(*recoJpsiV 														);
@@ -909,15 +910,13 @@ void Bc2Jpsi3Pi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		   for (int i=0; i < 4; i++){
 			 theNewCand.SetHltMatch 		(i,HltMatch[i]														);
 		   }
-
+  		   BcTree_->BcTree::AddBcTreeCand( theNewCand );	
 		 }//pi3
-		 
 	   }//pi2
      }//pi1 
-     
    }//mu2			      
   }//mu1
-
+  
   h1_["NumJPSI"      	] ->Fill(numJpsi);
   t1_["BcTree"]->Fill();
 

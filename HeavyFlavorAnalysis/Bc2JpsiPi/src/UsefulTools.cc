@@ -50,7 +50,6 @@ double UsefulTools::computeCosineError (double Lx,
 										double PxzCov,
 										double PyzCov)
 {
-  double cosine = 0.;
   double cosineError = 0. ;
   double Lnorm = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
   double Pnorm = sqrt(Px*Px + Py*Py + Pz*Pz);
@@ -58,7 +57,6 @@ double UsefulTools::computeCosineError (double Lx,
   
   if ((Lnorm > 0.) && (Pnorm > 0.))
   {
-    cosine = LdotW / (Lnorm * Pnorm);
     cosineError  = sqrt( ((Lx*Pnorm - LdotW*Px) * (Lx*Pnorm - LdotW*Px) * PxErr2 +
 						  (Ly*Pnorm - LdotW*Py) * (Ly*Pnorm - LdotW*Py) * PyErr2 +
 						  (Lz*Pnorm - LdotW*Pz) * (Lz*Pnorm - LdotW*Pz) * PzErr2 +
@@ -145,3 +143,49 @@ std::pair<double,double> UsefulTools::pionIPBeamSpot(reco::TransientTrack piTT, 
 
 }
 
+
+
+//Compute longitudinal impact parameter wrt vertex
+std::pair<double,double> UsefulTools::LongitudinalIP(reco::TransientTrack transientTrk, reco::Vertex myVtx)
+{
+    GlobalPoint VtxGP(myVtx.x(), myVtx.y(), myVtx.z()); 
+    std::pair<double,double> measureL;
+    TrajectoryStateClosestToPoint TSC = transientTrk.trajectoryStateClosestToPoint(VtxGP);
+    if(TSC.isValid())
+    {
+      measureL.first = TSC.perigeeParameters().longitudinalImpactParameter();
+      if(TSC.hasError() && !(TSC.hasError()==0)) 
+      {
+        measureL.second = measureL.first/TSC.perigeeError().longitudinalImpactParameterError();
+      }
+	}
+	else
+	{
+	measureL.first  = 99999;
+	measureL.second = 99999;
+	}
+	
+	return measureL;      
+
+}
+
+
+
+// double UsefulTools::myDistance(const reco::TransientTrack & transientTrack, reco::Vertex & vertex){
+//       AnalyticalImpactPointExtrapolator extrapolator(transientTrack.field());
+//       TrajectoryStateOnSurface myTsos = extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position());
+//  return 0.44;     
+// }      
+//       VertexDistance3D dist;
+//       return absoluteImpactParameter(extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position())), vertex, dist);
+// 
+//     std::pair<bool,Measurement1D> absoluteImpactParameter(const TrajectoryStateOnSurface & tsos , const reco::Vertex & vertex, VertexDistance & distanceComputer) {
+//         if(!tsos.isValid()) {
+//          return pair<bool,Measurement1D>(false,Measurement1D(0.,0.)) ;
+//         }
+//         GlobalPoint refPoint = tsos.globalPosition();
+//         GlobalError refPointErr = tsos.cartesianError().position();
+//         GlobalPoint vertexPosition = RecoVertex::convertPos(vertex.position());
+//         GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
+//         return pair<bool,Measurement1D>(true,distanceComputer.distance(VertexState(vertexPosition,vertexPositionErr), VertexState(refPoint, refPointErr)));
+//    }

@@ -21,7 +21,7 @@ def lineno():
 #---------------------------------------------------------------------------------
 maxEvents = -1      # Setup reasonable defaults
 verbose   = 0
-dataType  = 'mc'
+dataType  = 'data'
 output    = 'dataGrid.root'
 useJSON   = 0
 #---------------------------------------------------------------------------------

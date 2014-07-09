@@ -7,7 +7,7 @@ from HeavyFlavorAnalysis.Bc2JpsiPi.loadInit_cfi import *
 # Instantiate a MessageLogger set of control parameters 
 #service = MessageLogger { }
 
-process.maxEvents = cms.untracked.PSet( input    = cms.untracked.int32(20000))
+process.maxEvents = cms.untracked.PSet( input    = cms.untracked.int32(-1))
 # process.maxEvents = cms.untracked.PSet( input    = cms.untracked.int32(int(maxEvents)))
 process.options   = cms.untracked.PSet( 
                                         fileMode 	 = cms.untracked.string ( 'NOMERGE'         ),
@@ -27,7 +27,7 @@ from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
 if dataType == "data":
 	print lineno(), " "
 	print lineno(), "Acquiring input DATA files list"
-	process.GlobalTag.globaltag = 'FT_53_V18::All'
+	process.GlobalTag.globaltag = 'FT_53_V21_AN4::All'
 	from HeavyFlavorAnalysis.Bc2JpsiPi.dataRunList_cfi       import *
 else:
 	print lineno(), " "
@@ -75,7 +75,7 @@ process.Bc2JpsiPi = cms.EDAnalyzer('Bc2JpsiPi',
 							      				   "HLTname1=HLT_Dimuon8_Jpsi_v4",
 							      				   "HLTname2=HLT_Dimuon8_Jpsi_v5",
 							      				   "HLTname3=HLT_Dimuon8_Jpsi_v6",
-							      				   "HLTname3=HLT_Dimuon8_Jpsi_v7",
+							      				   "HLTname4=HLT_Dimuon8_Jpsi_v7",
 							      				   "trackCollection=generalTracks",
                                                    "HLTnameReference1=HLT_Dimuon0_Jpsi_v1",
                                                    "HLTnameReference2=HLT_Dimuon0_Jpsi_v3",

@@ -50,7 +50,6 @@ double UsefulTools::computeCosineError (double Lx,
 										double PxzCov,
 										double PyzCov)
 {
-  double cosine = 0.;
   double cosineError = 0. ;
   double Lnorm = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
   double Pnorm = sqrt(Px*Px + Py*Py + Pz*Pz);
@@ -58,7 +57,6 @@ double UsefulTools::computeCosineError (double Lx,
   
   if ((Lnorm > 0.) && (Pnorm > 0.))
   {
-    cosine = LdotW / (Lnorm * Pnorm);
     cosineError  = sqrt( ((Lx*Pnorm - LdotW*Px) * (Lx*Pnorm - LdotW*Px) * PxErr2 +
 						  (Ly*Pnorm - LdotW*Py) * (Ly*Pnorm - LdotW*Py) * PyErr2 +
 						  (Lz*Pnorm - LdotW*Pz) * (Lz*Pnorm - LdotW*Pz) * PzErr2 +

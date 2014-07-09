@@ -113,12 +113,12 @@ class Bc2JpsiPi : public edm::EDAnalyzer {
 	
 	  int runNumber;
 	
-      std::map<std::string, TH1F*  	> h1_ 		;
-      std::map<std::string, TH2F*  	> h2_ 		;
-      std::map<std::string, TH1F*  	> g1_ 		;
-      std::map<std::string, double 	> pDouble_ 	;
-      std::map<std::string, std::string> pString_ ;
-      std::map<std::string, TTree* 	> t1_ 		;
+      std::map<std::string, TH1F*  	   > h1_ 		;
+      std::map<std::string, TH2F*  	   > h2_ 		;
+      std::map<std::string, TH1F*  	   > g1_ 		;
+      std::map<std::string, double 	   > pDouble_ 	;
+      std::map<std::string, std::string> pString_   ;
+      std::map<std::string, TTree* 	   > t1_ 		;
        
       edm::ParameterSet thisConfig_ ;
       unsigned int      nEvents_    ;

@@ -41,8 +41,9 @@ double computeCosineError   (double Lx,
 							 double PyzCov);
 
 std::pair<double,double> 	pionImpactParameter(reco::TransientTrack piTT, TransientVertex jpsiVtx	);
-std::pair<double,double> 	pionImpactParameter(reco::TransientTrack piTT, reco::Vertex myVtx	);
+std::pair<double,double> 	pionImpactParameter(reco::TransientTrack piTT, reco::Vertex myVtx	    );
 std::pair<double,double> 	pionIPBeamSpot(reco::TransientTrack piTT, GlobalPoint BsGp				);
+std::pair<double,double>    LongitudinalIP(reco::TransientTrack piTT, reco::Vertex myVtx            );
 
   
 };

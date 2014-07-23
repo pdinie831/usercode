@@ -619,10 +619,11 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
 
         //Evaluate best pointing PV & closest PV in dz
-        float  pointPVCl  =   0 ;
-        double Cosine     = -10 ;
-        float  longPVCl   =   0 ;
-        double PVdz       = 100 ;
+        float  pointPVCl    =   0 ;
+        double Cosine       = -10 ;
+        double longPVCosine = -10 ;
+        float  longPVCl     =   0 ;
+        double PVdz         = 100 ;
         TransientVertex pointPVtrn, dzPVtrn;
         reco::Vertex pointPV, longitPV;
         for (reco::VertexCollection::const_iterator pvIt = primvtx.begin(); pvIt!=primvtx.end(); pvIt++)        
@@ -674,6 +675,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             PVdz        = iPVdz;
             longPVCl    = iPVCl;
             dzPVtrn     = checkPvs;
+            longPVCosine= Utils->computeCosine(idx, idy, idz, Bc_Pi.px(), Bc_Pi.py(), Bc_Pi.pz());
           }
         }            
 
@@ -813,7 +815,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         theNewCand.SetEl3DWrtLongPV       (LBcLongPV                                                          );
         theNewCand.SetEls3DWrtLongPV      (ElsBcLongPV                                                        );
         theNewCand.SetSigma3DWrtLongPV    (LBcLongPVErr                                                       );
-        theNewCand.SetCos3DWrtLongPV      (Cosine                                                             );
+        theNewCand.SetCos3DWrtLongPV      (longPVCosine                                                       );
         //Vertices
         for (int i=0; i < 3; i++){
           theNewCand.SetBcVtxPosition     (i, SVPos[i]                                                        );

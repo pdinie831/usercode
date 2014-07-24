@@ -124,20 +124,10 @@ std::pair<double,double> UsefulTools::pionImpactParameter(reco::TransientTrack p
 std::pair<double,double> UsefulTools::pionIPBeamSpot(reco::TransientTrack piTT, GlobalPoint BsGp)
 {
     std::pair<double,double> measureBS;
-    TrajectoryStateClosestToPoint pion_BeamSpot = piTT.trajectoryStateClosestToPoint(BsGp);
-    if(pion_BeamSpot.isValid())
-    {
-      measureBS.first = pion_BeamSpot.perigeeParameters().transverseImpactParameter();
-      if(pion_BeamSpot.hasError() && !(pion_BeamSpot.hasError()==0)) 
-      {
-        measureBS.second = measureBS.first/pion_BeamSpot.perigeeError().transverseImpactParameterError();
-      }
-	}
-	else
-	{
-	measureBS.first  = 99999;
-	measureBS.second = 99999;
-	}
+    TrajectoryStateClosestToBeamLine pion_BeamSpot = piTT.stateAtBeamLine();
+    Measurement1D meas = pion_BeamSpot.transverseImpactParameter();
+    measureBS.first  = meas.value();
+    measureBS.second = meas.value()/meas.error();
 	
 	return measureBS;      
 

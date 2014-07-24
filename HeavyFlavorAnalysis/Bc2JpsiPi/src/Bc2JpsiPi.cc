@@ -311,7 +311,9 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if (fabs(muR1->eta()) > pDouble_["cut_eta"])                                                continue;
     if (fabs(muR1->pt() ) < pDouble_["cut_Pt_Mu"])                                              continue;
-
+    if (!recomu1->innerTrack()->quality(reco::TrackBase::highPurity))                           continue;
+    if (!muon::isGoodMuon(*recomu2, muon::TMOneStationTight))                                   continue;  
+   
     //Loop on the second muon 
     for(reco::MuonCollection::const_iterator muR2 =muR1+1; muR2!=recoMuons->end(); ++muR2)
     {
@@ -320,6 +322,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (muR1->charge() + muR2->charge() != 0)                                                 continue; 
       if (fabs(muR2->eta()) > pDouble_["cut_eta"])                                              continue;
       if (fabs(muR2->pt() ) < pDouble_["cut_Pt_Mu"])                                            continue;
+      if (!recomu2->innerTrack()->quality(reco::TrackBase::highPurity))                         continue;
+      if (!muon::isGoodMuon(*recomu2, muon::TMOneStationTight))                                 continue;  
      
       if( !recomu1->track().isNonnull() || !recomu2->track().isNonnull())
       {

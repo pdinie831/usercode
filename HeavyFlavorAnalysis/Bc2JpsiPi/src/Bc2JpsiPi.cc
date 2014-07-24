@@ -258,7 +258,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (flag)                                                      continue;            
      if (checkTrk->pt()         < pDouble_["cut_Pt_Trk"])           continue;            
      if (fabs(checkTrk->eta())  > pDouble_["cut_eta_pi"])           continue;                                 
-     if (!iEvent.isRealData() && checkTrk->charge() !=1)            continue;   //per Bc
+//      if (!iEvent.isRealData() && checkTrk->charge() !=1)            continue;   //per Bc
      qualityTracks[tracksIt]=checkTrk;                                                   
   }
  
@@ -311,8 +311,9 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if (fabs(muR1->eta()) > pDouble_["cut_eta"])                                                continue;
     if (fabs(muR1->pt() ) < pDouble_["cut_Pt_Mu"])                                              continue;
+    if( !recomu1->track().isNonnull())                                                          continue;
     if (!recomu1->innerTrack()->quality(reco::TrackBase::highPurity))                           continue;
-    if (!muon::isGoodMuon(*recomu2, muon::TMOneStationTight))                                   continue;  
+    if (!muon::isGoodMuon(*recomu1, muon::TMOneStationTight))                                   continue;  
    
     //Loop on the second muon 
     for(reco::MuonCollection::const_iterator muR2 =muR1+1; muR2!=recoMuons->end(); ++muR2)
@@ -322,6 +323,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (muR1->charge() + muR2->charge() != 0)                                                 continue; 
       if (fabs(muR2->eta()) > pDouble_["cut_eta"])                                              continue;
       if (fabs(muR2->pt() ) < pDouble_["cut_Pt_Mu"])                                            continue;
+      if( !recomu2->track().isNonnull())                                                        continue;
       if (!recomu2->innerTrack()->quality(reco::TrackBase::highPurity))                         continue;
       if (!muon::isGoodMuon(*recomu2, muon::TMOneStationTight))                                 continue;  
      
@@ -388,7 +390,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //Fit to the dimuon vertex
       KalmanVertexFitter             fitterMuMu;
       TransientVertex                mumuVertex;
-      vector<reco::TransientTrack>     tTrMu;
+      vector<reco::TransientTrack>        tTrMu;
       tTrMu.push_back(tTrackmuP);                                          
       tTrMu.push_back(tTrackmuM);
       mumuVertex = fitterMuMu.vertex(tTrMu);
@@ -490,6 +492,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         h1_["Pion_ImpactParameter"]->Fill(pi_3DIp);
         h1_["Pion_IPsignificance" ]->Fill(pi_3DIpSignificance);
         
+        if (pi_3DIpSignificance > 10)                 continue;
+        
         pair<double,double>  Pion_BSPair = Utils->pionIPBeamSpot(piTrackCand,BeamSpotGP);
         double pi_IPbs                   = Pion_BSPair.first;
         double pi_IPbsSignificance       = Pion_BSPair.second;
@@ -502,7 +506,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         double DRPi =  deltaR(PionTrackCand->eta(),PionTrackCand->phi(),jpsiTV->Eta(),jpsiTV->Phi());
         h1_["deltaRPi"     ]-> Fill(DRPi);
-        if (DRPi > 5)                                 continue;
+        if (DRPi > 8)                                 continue;
 
         //Kinematic vertex fit with Jpsi constraint for Bc->JpsiPi    
         KinematicParticleFactoryFromTransientTrack pFactory;

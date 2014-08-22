@@ -471,7 +471,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       h1_["JpsiBeforeTrigMatch"         ]->Fill(JpsiNoTrig);
       if(!MuTrigMatch )                    continue;
       h1_["JpsiAfterTrigMatch"          ]->Fill(JpsiTrig  );
-      h1_["InvMassJpsiPassingTrigMatch" ]->Fill(jpsiV.M()  );
+      h1_["InvMassJpsiPassingTrigMatch" ]->Fill(jpsiV.M() );
 
       TLorentzVector *jpsiMuP, *jpsiMuM;
       jpsiMuP  = new TLorentzVector(MuPp4.px(), MuPp4.py(), MuPp4.pz(), MuPp4.energy());
@@ -482,8 +482,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       JpsiVtxPos[2] = mumuVertex.position().z() ;
 
       //MC match Muons
-       double matchMuJpsi[2];
-     if(!iEvent.isRealData()  && doGenMC_)
+      double matchMuJpsi[2];
+      if(!iEvent.isRealData()  && doGenMC_)
       {
           matchMuJpsi[0] = deltaR(jpsiMuP->Eta(),jpsiMuP->Phi(),p_muP.Eta(),p_muP.Phi());
           matchMuJpsi[1] = deltaR(jpsiMuM->Eta(),jpsiMuM->Phi(),p_muM.Eta(),p_muM.Phi());
@@ -523,10 +523,6 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         h1_["Pion_TransverseImpactParameter_BS" ]-> Fill(pi_IPbs);
         h1_["Pion_TIParameterBSsignificance"    ]-> Fill(pi_IPbsSignificance);
 
-        pair<double,double>  pion_IPPairPV = Utils->pionImpactParameter(piTrackCand,primvtx[0]);
-        double pi_3DIpPV                   = pion_IPPairPV.first;
-        double pi_3DIpPVSignificance       = pion_IPPairPV.second;
-
         double DRPi =  deltaR(PionTrackCand->eta(),PionTrackCand->phi(),jpsiTV->Eta(),jpsiTV->Phi());
         h1_["deltaRPi"     ]-> Fill(DRPi);
         if (DRPi > 8)                                 continue;
@@ -536,8 +532,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         float muon_sigma              = muon_mass*1.e-6;
         float pion_sigma              = pion_mass*1.e-6; 
         float kaon_sigma              = kaon_mass*1.e-6; 
-        float chi                        = 0.;
-        float ndf                        = 0.;
+        float chi                     = 0.;
+        float ndf                     = 0.;
 
         std::vector<RefCountedKinematicParticle> XParticles_Bc;
         XParticles_Bc.push_back(pFactory.particle(tTrackmuP,  muon_mass,chi,ndf,muon_sigma));
@@ -650,13 +646,18 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
 
         //Evaluate best pointing PV & closest PV in dz
-        float  pointPVCl    =   0 ;
-        double Cosine       = -10 ;
-        double longPVCosine = -10 ;
-        float  longPVCl     =   0 ;
-        double PVdz         = 100 ;
+        float  pointPVCl                  =   0 ;
+        double Cosine                     = -10 ;
+        double longPVCosine               = -10 ;
+        float  longPVCl                   =   0 ;
+        double PVdz                       = 100 ;
+        double pi_3DIpLongPV              =   0 ;          
+        double pi_3DIpLongPVSignificance  =   0 ;  
+        double pi_3DIpPointPV             =   0 ;          
+        double pi_3DIpPointPVSignificance =   0 ;  
         std::vector<float>  pionDxy;  pionDxy.reserve( 10);
         std::vector<float>  pionDz ;  pionDz.reserve(  10);
+
         int pviter          =   0 ;   
         TransientVertex pointPVtrn, dzPVtrn;
         reco::Vertex pointPV, longitPV;
@@ -699,6 +700,9 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             Cosine      = icos;
             pointPVCl   = iPVCl;
             pointPVtrn  = checkPvs;
+			pair<double,double>  pion_IPPairPV = Utils->pionImpactParameter(piTrackCand,iPV);
+			pi_3DIpPointPV               = pion_IPPairPV.first;
+			pi_3DIpPointPVSignificance   = pion_IPPairPV.second;
           }
           
           pair<double,double>  Bc_LongIPPairPV = Utils->LongitudinalIP(myTrk,iPV);
@@ -710,13 +714,15 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             longPVCl    = iPVCl;
             dzPVtrn     = checkPvs;
             longPVCosine= Utils->computeCosine(idx, idy, idz, Bc_Pi.px(), Bc_Pi.py(), Bc_Pi.pz());
+			pair<double,double>  pion_IPPairPV = Utils->pionImpactParameter(piTrackCand,iPV);
+			pi_3DIpLongPV               = pion_IPPairPV.first;
+			pi_3DIpLongPVSignificance   = pion_IPPairPV.second;
           }
         
           //compute pion IP from each PV
           pionDxy.push_back( PionTrackCand -> dxy(iPV.position()));
           pionDz.push_back ( PionTrackCand -> dz( iPV.position()));
           pviter++;
-        
         }            
         
         h1_["refittedNprimSize"    ] -> Fill(pviter);
@@ -842,8 +848,10 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         theNewCand.SetIP3DJpsiSign        (pi_3DIpSignificance                                                );
         theNewCand.SetIP2DBS              (pi_IPbs                                                            );
         theNewCand.SetIP2DBSSign          (pi_IPbsSignificance                                                );
-        theNewCand.SetIP3DPV              (pi_3DIpPV                                                          );
-        theNewCand.SetIP3DPVSign          (pi_3DIpPVSignificance                                              );
+        theNewCand.SetIP3DLongPV          (pi_3DIpLongPV                                                      );
+        theNewCand.SetIP3DLongPVSign      (pi_3DIpLongPVSignificance                                          );
+        theNewCand.SetIP3DPointPV         (pi_3DIpPointPV                                                     );
+        theNewCand.SetIP3DPointPVSign     (pi_3DIpPointPVSignificance                                         );
         theNewCand.SetDeltaR              (DRPi                                                               );
         theNewCand.SetTrackDxyPVs         (pionDxy                                                            );
         theNewCand.SetTrackDzPVs          (pionDz                                                             );

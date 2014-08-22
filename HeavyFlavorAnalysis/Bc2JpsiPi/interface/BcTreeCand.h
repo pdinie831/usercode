@@ -65,8 +65,10 @@ private:
     Double_t           IP3DWrtJpsiSign_        ;
     Double_t           IP2DWrtBS_              ;
     Double_t           IP2DWrtBSSign_          ;
-    Double_t           IP3DWrtPV_              ;
-    Double_t           IP3DWrtPVSign_          ;
+    Double_t           IP3DWrtLongPV_          ;
+    Double_t           IP3DWrtLongPVSign_      ;
+    Double_t           IP3DWrtPointPV_         ;
+    Double_t           IP3DWrtPointPVSign_     ;
     Double_t           DeltaR_                 ;
     std::vector<float> TrackDxyPVs_            ;
     std::vector<float> TrackDzPVs_             ;
@@ -174,8 +176,10 @@ public:
     void   SetIP3DJpsiSign        (Double_t       n)          {   IP3DWrtJpsiSign_        = n ;}
     void   SetIP2DBS              (Double_t       n)          {   IP2DWrtBS_              = n ;}
     void   SetIP2DBSSign          (Double_t       n)          {   IP2DWrtBSSign_          = n ;}
-    void   SetIP3DPV              (Double_t       n)          {   IP3DWrtPV_              = n ;}
-    void   SetIP3DPVSign          (Double_t       n)          {   IP3DWrtPVSign_          = n ;}
+    void   SetIP3DLongPV          (Double_t       n)          {   IP3DWrtLongPV_          = n ;}
+    void   SetIP3DLongPVSign      (Double_t       n)          {   IP3DWrtLongPVSign_      = n ;}
+    void   SetIP3DPointPV         (Double_t       n)          {   IP3DWrtPointPV_         = n ;}
+    void   SetIP3DPointPVSign     (Double_t       n)          {   IP3DWrtPointPVSign_     = n ;}
     void   SetDeltaR              (Double_t       n)          {   DeltaR_                 = n ;}
     void   SetTrackDxyPVs         (std::vector<float> n)      {   TrackDxyPVs_            = n ;}
     void   SetTrackDzPVs          (std::vector<float> n)      {   TrackDzPVs_             = n ;}
@@ -280,8 +284,10 @@ public:
     Double_t                GetIP3DJpsiSign()            {   return  IP3DWrtJpsiSign_     ;}
     Double_t                GetIP2DBS()                  {   return  IP2DWrtBS_           ;}
     Double_t                GetIP2DBSSign()              {   return  IP2DWrtBSSign_       ;}
-    Double_t                GetIP3DPV()                  {   return  IP3DWrtPV_           ;}
-    Double_t                GetIP3DPVSign()              {   return  IP3DWrtPVSign_       ;}
+    Double_t                GetIP3DLongPV()              {   return  IP3DWrtLongPV_       ;}
+    Double_t                GetIP3DLongPVSign()          {   return  IP3DWrtLongPVSign_   ;}
+    Double_t                GetIP3DPointPV()             {   return  IP3DWrtPointPV_      ;}
+    Double_t                GetIP3DPointPVSign()         {   return  IP3DWrtPointPVSign_  ;}
     Double_t                GetDeltaR()                  {   return  DeltaR_              ;}
     std::vector<float>      GetTrackDxyPVs()             {   return  TrackDxyPVs_         ;}
     std::vector<float>      GetTrackDzPVs()              {   return  TrackDzPVs_          ;}
@@ -384,8 +390,10 @@ BcTreeCand(const BcTreeCand &orig) : TObject(orig)
     IP3DWrtJpsiSign_        =  orig.IP3DWrtJpsiSign_        ;
     IP2DWrtBS_              =  orig.IP2DWrtBS_              ;
     IP2DWrtBSSign_          =  orig.IP2DWrtBSSign_          ;
-    IP3DWrtPV_              =  orig.IP3DWrtPV_              ;
-    IP3DWrtPVSign_          =  orig.IP3DWrtPVSign_          ;
+    IP3DWrtLongPV_          =  orig.IP3DWrtLongPV_          ;
+    IP3DWrtLongPVSign_      =  orig.IP3DWrtLongPVSign_      ;
+    IP3DWrtPointPV_         =  orig.IP3DWrtPointPV_         ;
+    IP3DWrtPointPVSign_     =  orig.IP3DWrtPointPVSign_     ;
     DeltaR_                 =  orig.DeltaR_                 ;
     TrackDxyPVs_            =  orig.TrackDxyPVs_            ;
     TrackDzPVs_             =  orig.TrackDzPVs_             ;

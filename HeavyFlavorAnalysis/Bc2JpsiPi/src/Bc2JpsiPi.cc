@@ -60,15 +60,38 @@ bool   boolMC     = false;
 using namespace std ;
 
 Bc2JpsiPi::Bc2JpsiPi(const edm::ParameterSet& iConfig) :
-   boolTrg_    (iConfig.getParameter<bool>                     ("printTriggers"   )),
-   inputDouble_(iConfig.getParameter<std::vector<std::string> >("inputDouble_"    )),
-   inputString_(iConfig.getParameter<std::vector<std::string> >("inputString_"    )),
-   thePVs_(     iConfig.getParameter<edm::InputTag>            ("primaryVertexTag")),
-   thebeamspot_(iConfig.getParameter<edm::InputTag>            ("beamSpotTag"     ))
+   boolTrg_           (iConfig.getParameter<bool>               ("printTriggers"    )),
+   cut_PtMu_          (iConfig.getParameter<double>             ("cut_pt_Mu"        )),
+   cut_PtTrk_         (iConfig.getParameter<double>             ("cut_pt_Trk"       )),
+   cut_PtJpsi_        (iConfig.getParameter<double>             ("cut_pt_Jpsi"      )),
+   cut_ClPV_          (iConfig.getParameter<double>             ("cut_cl_PV"        )),
+   cut_ClJpsi_        (iConfig.getParameter<double>             ("cut_cl_Jpsi"      )),
+   cut_ClBc_          (iConfig.getParameter<double>             ("cut_cl_Bc"        )),
+   cut_EtaMu_         (iConfig.getParameter<double>             ("cut_eta_mu"       )),
+   cut_EtaPi_         (iConfig.getParameter<double>             ("cut_eta_pi"       )),
+   cut_JpsiMassWindow_(iConfig.getParameter<double>             ("cut_jpsi_Mass"    )),
+   cut_HLTMatch_      (iConfig.getParameter<double>             ("cut_HLT_match"    )),
+   cut_TrkChi2_       (iConfig.getParameter<double>             ("cut_chi2_trk"     )),
+   cut_NPixHits_      (iConfig.getParameter<unsigned int>       ("cut_nPix_hits"    )),
+   cut_NTrkHits_      (iConfig.getParameter<unsigned int>       ("cut_nTrk_hits"    )),
+   MCID_              (iConfig.getParameter<string>             ("MCID"             )),
+   HLTname1_          (iConfig.getParameter<string>             ("HLTname1"         )),
+   HLTname2_          (iConfig.getParameter<string>             ("HLTname2"         )),
+   HLTname3_          (iConfig.getParameter<string>             ("HLTname3"         )),
+   HLTname4_          (iConfig.getParameter<string>             ("HLTname4"         )),
+   HLTnameReference1_ (iConfig.getParameter<string>             ("HLTnameReference1")),
+   HLTnameReference2_ (iConfig.getParameter<string>             ("HLTnameReference2")),
+   HLTMatchModule1_   (iConfig.getParameter<string>             ("HLTMatchModule1"  )),
+   HLTMatchModule2_   (iConfig.getParameter<string>             ("HLTMatchModule2"  )),
+   HLTMatchName_      (iConfig.getParameter<string>             ("HLTMatchName"     )),
+   doGenMC_           (iConfig.getParameter<bool>               ("doGenMC"          )),
+   filename_          (iConfig.getParameter<string>             ("filename"         )),
+   thePVs_            (iConfig.getParameter<edm::InputTag>      ("primaryVertexTag" )),
+   thebeamspot_       (iConfig.getParameter<edm::InputTag>      ("beamSpotTag"      )),
+   trackCollection_   (iConfig.getParameter<edm::InputTag>      ("trackCollection"  ))
 {
   cout << __LINE__ << "]\t" << __PRETTY_FUNCTION__ << "\tCtor" << endl ;
   thisConfig_ = iConfig;
-  acquireInputParameters() ;
   Utils = new UsefulTools();
 }    
 
@@ -95,7 +118,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("muons",                     recoMuons)     ;
 
   edm::Handle<reco::TrackCollection>             tracks         ;
-  iEvent.getByLabel(pString_["trackCollection"], tracks)        ;
+  iEvent.getByLabel(trackCollection_,            tracks)        ;
 
   edm::Handle<reco::VertexCollection>            priVtxs        ;
   iEvent.getByLabel(thePVs_,                     priVtxs)       ;
@@ -109,9 +132,9 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::TriggerResults>  hltresults;
   edm::InputTag tag("TriggerResults","","HLT");
   iEvent.getByLabel(tag,           hltresults);
-
+  
   //Call GEN level analysis
-  if (!iEvent.isRealData())
+  if (!iEvent.isRealData() && doGenMC_)
   {
     MonteCarloStudies(iEvent) ;
   }
@@ -224,10 +247,10 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(int itrig = 0; itrig != (int)hltresults->size(); ++itrig)
   { 
      if (boolTrg_)     std::cout << triggerNames_.triggerName(itrig) << std::endl;
-     if((triggerNames_.triggerName(itrig) == pString_["HLTname1"]) || 
-        (triggerNames_.triggerName(itrig) == pString_["HLTname2"]) ||
-        (triggerNames_.triggerName(itrig) == pString_["HLTname3"]) ||
-        (triggerNames_.triggerName(itrig) == pString_["HLTname4"]) 
+     if((triggerNames_.triggerName(itrig) == HLTname1_) || 
+        (triggerNames_.triggerName(itrig) == HLTname2_) ||
+        (triggerNames_.triggerName(itrig) == HLTname3_) ||
+        (triggerNames_.triggerName(itrig) == HLTname4_) 
      ) 
     {
       goodTrig.push_back(itrig) ;
@@ -235,7 +258,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   if ( goodTrig.size() == 0 ) {
     cout << __LINE__ << "\tthe required trigger paths are not present is this dataset!" << endl;
-    std::cout << "Looking for " << pString_["HLTname1"] << "," << pString_["HLTname2"] << "," << pString_["HLTname3"] << "," << pString_["HLTname4"]  << std::endl;
+    std::cout << "Looking for " << HLTname1_ << "," << HLTname2_ << "," << HLTname3_ << "," << HLTname4_  << std::endl;
     return ;
   }
   bool triggerAccepted = false ;
@@ -256,8 +279,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if (mu->track().get()!= 0 && mu->track().get() == checkTrk.get()) { flag=true; break;}                    
      }                                                                
      if (flag)                                                      continue;            
-     if (checkTrk->pt()         < pDouble_["cut_Pt_Trk"])           continue;            
-     if (fabs(checkTrk->eta())  > pDouble_["cut_eta_pi"])           continue;                                 
+     if (checkTrk->pt()         < cut_PtTrk_ )                      continue;            
+     if (fabs(checkTrk->eta())  > cut_EtaPi_ )                      continue;                                 
 //      if (!iEvent.isRealData() && checkTrk->charge() !=1)            continue;   //per Bc
      qualityTracks[tracksIt]=checkTrk;                                                   
   }
@@ -309,8 +332,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
     recomu1 = &*muR1;
     
-    if (fabs(muR1->eta()) > pDouble_["cut_eta"])                                                continue;
-    if (fabs(muR1->pt() ) < pDouble_["cut_Pt_Mu"])                                              continue;
+    if (fabs(muR1->eta()) > cut_EtaMu_)                                                         continue;
+    if (fabs(muR1->pt() ) < cut_PtMu_ )                                                         continue;
     if( !recomu1->track().isNonnull())                                                          continue;
     if (!recomu1->innerTrack()->quality(reco::TrackBase::highPurity))                           continue;
     if (!muon::isGoodMuon(*recomu1, muon::TMOneStationTight))                                   continue;  
@@ -321,9 +344,9 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       recomu2 = &*muR2;
 
       if (muR1->charge() + muR2->charge() != 0)                                                 continue; 
-      if (fabs(muR2->eta()) > pDouble_["cut_eta"])                                              continue;
-      if (fabs(muR2->pt() ) < pDouble_["cut_Pt_Mu"])                                            continue;
-      if( !recomu2->track().isNonnull())                                                        continue;
+      if (fabs(muR2->eta()) > cut_EtaMu_)                                                       continue;
+      if (fabs(muR2->pt() ) < cut_PtMu_)                                                        continue;
+      if (!recomu2->track().isNonnull())                                                        continue;
       if (!recomu2->innerTrack()->quality(reco::TrackBase::highPurity))                         continue;
       if (!muon::isGoodMuon(*recomu2, muon::TMOneStationTight))                                 continue;  
      
@@ -415,9 +438,9 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Trigger requirements: CL, L/Sigma, Cosine and pT
       float ClJpsiVtx(TMath::Prob(mumuVertex.totalChiSquared(),(int)(mumuVertex.degreesOfFreedom())));
-      if (ClJpsiVtx  <     pDouble_["cut_cl_Jpsi"])                                   continue;
-      if (jpsiV.pt() <=    pDouble_["ptJpsi"])                                        continue;
-      if (fabs(jpsiV.M() - pDouble_["JPsiMassPDG"]) > pDouble_["JPsiMassWindow"])     continue;
+      if (ClJpsiVtx  <     cut_ClJpsi_            )                                   continue;
+      if (jpsiV.pt() <=    cut_PtJpsi_            )                                   continue;
+      if (fabs(jpsiV.M() - jpsimass_c ) > cut_JpsiMassWindow_)                        continue;
 
       h1_["InvMassJPsiCuts"   ]->Fill(jpsiV.M());
 
@@ -430,10 +453,10 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         double phiMu1 = (*it).first.second  ;                                                                 
         double etaMu2 = (*it).second.first  ;                                                                 
         double phiMu2 = (*it).second.second ;                                                                 
-        if( ((reco::deltaR(refMuP->eta(), refMuP->phi(), etaMu1, phiMu1 ) < pDouble_["HLTMatch"])     &&                                         
-             (reco::deltaR(refMuM->eta(), refMuM->phi(), etaMu2, phiMu2 ) < pDouble_["HLTMatch"]))    ||                                         
-            ((reco::deltaR(refMuP->eta(), refMuP->phi(), etaMu2, phiMu2 ) < pDouble_["HLTMatch"])     &&                                         
-             (reco::deltaR(refMuM->eta(), refMuM->phi(), etaMu1, phiMu1 ) < pDouble_["HLTMatch"]))                                             
+        if( ((reco::deltaR(refMuP->eta(), refMuP->phi(), etaMu1, phiMu1 ) < cut_HLTMatch_)     &&                                         
+             (reco::deltaR(refMuM->eta(), refMuM->phi(), etaMu2, phiMu2 ) < cut_HLTMatch_))    ||                                         
+            ((reco::deltaR(refMuP->eta(), refMuP->phi(), etaMu2, phiMu2 ) < cut_HLTMatch_)     &&                                         
+             (reco::deltaR(refMuM->eta(), refMuM->phi(), etaMu1, phiMu1 ) < cut_HLTMatch_))                                             
           )                                                                                  
         {                                                                                 
           JpsiTrig++; 
@@ -460,7 +483,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //MC match Muons
        double matchMuJpsi[2];
-      if(!iEvent.isRealData())
+     if(!iEvent.isRealData()  && doGenMC_)
       {
           matchMuJpsi[0] = deltaR(jpsiMuP->Eta(),jpsiMuP->Phi(),p_muP.Eta(),p_muP.Phi());
           matchMuJpsi[1] = deltaR(jpsiMuM->Eta(),jpsiMuM->Phi(),p_muM.Eta(),p_muM.Phi());
@@ -543,7 +566,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         reco::TransientTrack myTrk = BcCand->refittedTransientTrack();
         double ClBcVtx = ChiSquaredProbability((double)(BcVertex->chiSquared()),(double)(BcVertex->degreesOfFreedom()));
         h1_["Bcvtxcl"]-> Fill(ClBcVtx);
-        if (ClBcVtx <= pDouble_["cut_cl_Bc"])                                       continue ;
+        if (ClBcVtx <= cut_ClBc_)                                           continue ;
 
         BcVertexFitTree->movePointerToTheFirstChild();
         RefCountedKinematicParticle muP =  BcVertexFitTree->currentParticle();
@@ -584,7 +607,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         double ClBpVtx=ChiSquaredProbability((double)(BpVertex->chiSquared()),(double)(BpVertex->degreesOfFreedom()));
         h1_["Bpvtxcl"  ]->Fill(ClBpVtx);
-        if ( ClBpVtx<pDouble_["cut_cl_Bc"] )      continue;
+        if ( ClBpVtx < cut_ClBc_ )                continue;
        
         BpVertexFitTree->movePointerToTheFirstChild();
         RefCountedKinematicParticle muP_2 =  BpVertexFitTree->currentParticle();
@@ -619,7 +642,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         Covsec(2,2) = BcVertex->error().czz();
 
         //MC match 
-        if(!iEvent.isRealData())
+        if(!iEvent.isRealData() && doGenMC_ )
         {
           matchMu[0] = deltaR(MuPp4R.eta(),MuPp4R.phi(),p_muP.Eta(),p_muP.Phi());
           matchMu[1] = deltaR(MuMp4R.eta(),MuMp4R.phi(),p_muM.Eta(),p_muM.Phi());
@@ -632,6 +655,9 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         double longPVCosine = -10 ;
         float  longPVCl     =   0 ;
         double PVdz         = 100 ;
+        std::vector<float>  pionDxy;  pionDxy.reserve( 10);
+        std::vector<float>  pionDz ;  pionDz.reserve(  10);
+        int pviter          =   0 ;   
         TransientVertex pointPVtrn, dzPVtrn;
         reco::Vertex pointPV, longitPV;
         for (reco::VertexCollection::const_iterator pvIt = primvtx.begin(); pvIt!=primvtx.end(); pvIt++)        
@@ -659,7 +685,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           TransientVertex checkPvs = checkFitter.vertex(primaryTks_tks);
           if (!checkPvs.isValid())                                          continue;
           float iPVCl(TMath::Prob(checkPvs.totalChiSquared(),(int)(checkPvs.degreesOfFreedom())));
-          if (iPVCl <= pDouble_["cut_cl_PV"])                               continue; 
+          if (iPVCl <= cut_ClPV_)                                           continue; 
           iPV = checkPvs;    
           if(!(iPV.isValid()))                                              continue;
 
@@ -685,7 +711,16 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             dzPVtrn     = checkPvs;
             longPVCosine= Utils->computeCosine(idx, idy, idz, Bc_Pi.px(), Bc_Pi.py(), Bc_Pi.pz());
           }
+        
+          //compute pion IP from each PV
+          pionDxy.push_back( PionTrackCand -> dxy(iPV.position()));
+          pionDz.push_back ( PionTrackCand -> dz( iPV.position()));
+          pviter++;
+        
         }            
+        
+        h1_["refittedNprimSize"    ] -> Fill(pviter);
+        
 
         //Set vertex values
         PointPVPos[0] = pointPV.position().x() ;
@@ -810,6 +845,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         theNewCand.SetIP3DPV              (pi_3DIpPV                                                          );
         theNewCand.SetIP3DPVSign          (pi_3DIpPVSignificance                                              );
         theNewCand.SetDeltaR              (DRPi                                                               );
+        theNewCand.SetTrackDxyPVs         (pionDxy                                                            );
+        theNewCand.SetTrackDzPVs          (pionDz                                                             );
         // Bc vertex   
         theNewCand.SetClS                 (ClBcVtx                                                            );
         theNewCand.SetEl2DWrtBS           (LBcBSXY                                                            );
@@ -866,7 +903,7 @@ void Bc2JpsiPi::beginJob()
     runNumber = 0 ;
     nEvents_  = 0 ;
  
-    file    = new TFile(pString_["filename"].c_str(),"recreate");
+    file    = new TFile(filename_.c_str(),"recreate");
     const bool oldAddDir = TH1::AddDirectoryStatus();
     TH1::AddDirectory(true);
     
@@ -936,16 +973,17 @@ void Bc2JpsiPi::beginJob()
     h1_["goodTrkSize"                       ] = new TH1F("goodTrkSize"                      ,"number of tracks passing selections"   ,     800,   0, 800   );
     h1_["Bcvtxcl"                           ] = new TH1F("Bcvtxcl"                          ,"Bc vertex CL before cut"               ,   10000,   0,   1.  );
     h1_["Bpvtxcl"                           ] = new TH1F("Bpvtxcl"                          ,"Bp vertex CL after cut"                ,   10000,   0,   1.  );
-    h1_["Pion_ImpactParameter"              ] = new TH1F("Pion_ImpactParameter"             ,"Pion_ImpactParameter"                  ,   10000,   0,  50   );
-    h1_["Pion_IPsignificance"               ] = new TH1F("Pion_IPsignificance"              ,"Pion_IPsignificance"                   ,   10000,   0, 100   );
+    h1_["Pion_ImpactParameter"              ] = new TH1F("Pion_ImpactParameter"             ,"Pion_ImpactParameter"                  ,    5000,   0,  50   );
+    h1_["Pion_IPsignificance"               ] = new TH1F("Pion_IPsignificance"              ,"Pion_IPsignificance"                   ,    1000,   0, 100   );
     h1_["Pion_TransverseImpactParameter_BS" ] = new TH1F("Pion_TransverseImpactParameter_BS","Pion_TransverseImpactParameter_BS"     ,    5000,   0,  25   );
-    h1_["Pion_TIParameterBSsignificance"    ] = new TH1F("Pion_TIParameterBSsignificance"   ,"Pion_TIParameterBSsignificance"        ,   10000,   0,  50   );
+    h1_["Pion_TIParameterBSsignificance"    ] = new TH1F("Pion_TIParameterBSsignificance"   ,"Pion_TIParameterBSsignificance"        ,    1000,   0,  50   );
     h1_["BcVtxFitTreeNonValid"              ] = new TH1F("BcVtxFitTreeNonValid"             ,"BcVtxFitTreeNonValid"                  ,       4,   0,   4   );
     h1_["BcVtxNonValid"                     ] = new TH1F("BcVtxNonValid"                    ,"BcVtxNonValid"                         ,       4,   0,   4   );
     h1_["BcJpsiSignificance"                ] = new TH1F("BcJpsiSignificance"               ,"BcJpsiSignificance"                    ,     100,   0,  50.0 );
     h1_["BcJpsiDistance"                    ] = new TH1F("BcJpsiDistance"                   ,"BcJpsiDistance"                        ,   10000,   0,   5.0 );
     h1_["PointPVDelTrks"                    ] = new TH1F("PointPVDelTrks"                   ,"Number of deleted trks from PointPV"   ,       5,   0,   5.0 );
     h1_["deltaRPi"                          ] = new TH1F("deltaRPi"                         ,"deltaRPi"                              ,    1000,   0,  10.0 );
+    h1_["refittedNprimSize"                 ] = new TH1F("refittedNprimSize"                ,"pVertexSize after my refit "           ,      80,   0,  80   );
 
     file->cd();
     h1_["filter"                    ] = new TH1F("filter",              "Binned filter counter", 50,0, 50); 
@@ -963,7 +1001,7 @@ void Bc2JpsiPi::endJob() {
        << endl
        << __LINE__ << " " << __PRETTY_FUNCTION__ << "\t"
        << "======================= Saving histograms to " 
-       << pString_["filename"]
+       << filename_
        << " ======================="
        << endl 
        << endl ;
@@ -979,17 +1017,16 @@ void Bc2JpsiPi::MonteCarloStudies(const edm::Event& iEvent)
 	int piplus        = 0 ;
 	double BcMassMC   = 0.;
 
-	std::string mcpart = pString_["MCID"]; 
 	std::string strBc("Bc");
 	std::string strBp("Bp");
-	if (mcpart.find(strBc) != std::string::npos) 
+	if (MCID_.find(strBc) != std::string::npos) 
 	{
 	  BcplusId =   541;
 	  piplus   =   211;
 	  BcMassMC = 6.275;
 	  isBc     =  true;
 	}
-	else if (mcpart.find(strBp) != std::string::npos) 
+	else if (MCID_.find(strBp) != std::string::npos) 
 	{
 	  BcplusId =    521;
 	  piplus   =    321;
@@ -1113,95 +1150,12 @@ void Bc2JpsiPi::MonteCarloStudies(const edm::Event& iEvent)
 
 }
 
-//=============================================================================================================================================== 
-bool Bc2JpsiPi::passPioncuts(reco::TrackRef pionCand)
-{
-     if (pionCand->pt()<pDouble_["cut_Pt_Trk"])                                 return false ;
-     if (pionCand->p()<pDouble_["pCandMomCut"])                                 return false ;
-     if (fabs(pionCand->eta())>pDouble_["cut_eta_pi"])                          return false ;
-     int nhits=pionCand->numberOfValidHits();
-     if( nhits <pDouble_["cut_nhits"] )                                         return false ;
-     if (pionCand->hitPattern().numberOfValidPixelHits() < pDouble_["numberOfValidPixelHitsCut"]  )             return false ;
-     if( pionCand->normalizedChi2() > pDouble_["cut_chi2n"])                    return false ;
-         
-     return true;
-}
-//============================================================================================== 
-//Acquire Input Parameters
-void Bc2JpsiPi::acquireInputParameters(void)
-{
-   std::cout << "\n\n"
-             << __LINE__ << "]\t" 
-             << __PRETTY_FUNCTION__  
-             << "\t=================== Parameters read from python configuration file ============================="
-             << endl << endl ;
-   
-   map<string, vector<string> > containers ;
-   
-   containers["double"] = inputDouble_ ;
-   containers["string"] = inputString_ ;
-   for(map<string, vector<string> >::iterator typeIt =containers.begin(); typeIt!=containers.end(); ++typeIt)
-   {
-     for(std::vector<std::string>::iterator it =typeIt->second.begin(); it!=typeIt->second.end(); ++it)
-     {
-       static const boost::regex exp("(.+)?=(.+)", boost::regex::perl);
-       if( typeIt->first == "double" )
-       {
-         boost::cmatch what ;
-         if(boost::regex_match((*it).c_str(), what, exp))
-         { 
-           pDouble_[what[1]] = atof(what[2].first) ;
-           std::cout << what[1]
-                     << "\t= "
-                     << what[2].first
-                    << endl ; 
-         }
-         else
-         {
-            std::cout << __LINE__ << "]\t" << __PRETTY_FUNCTION__  
-            << "\tInvalid parameter syntax for " 
-            << *it
-            << endl ;
-            assert(0) ;
-         }  
-       }
-       else
-       {
-         boost::smatch what ;
-         static const boost::regex exp("(.+)?=(.+)");
-         if(boost::regex_match(*it, what, exp, boost::match_extra)) 
-         { 
-           pString_[what[1]] = what[2] ;
-           std::cout << what[1]
-           << "\t= "
-           << what[2]
-           << endl ;
-         }
-         else
-         {
-           std::cout << __LINE__ << "]\t" << __PRETTY_FUNCTION__  
-           << "\tInvalid parameter syntax for " 
-           << *it
-           << endl ;
-           assert(0) ;
-         }
-       }
-     }
-   }
-   
-   std::cout << "\n\n"
-             << __LINE__ << "]\t" 
-             << __PRETTY_FUNCTION__  
-             << "\t================================================================================================"
-             << endl << endl ;
-}
-
 //========================================================================================
 void Bc2JpsiPi::checkHLT(const edm::Event& iEvent)
 {
-   std::string theName   = pString_["HLTMatchName"];
-   std::string trigpart1 = pString_["HLTMatchModule1"];   
-   std::string trigpart2 = pString_["HLTMatchModule2"];
+   std::string theName   = HLTMatchName_;
+   std::string trigpart1 = HLTMatchModule1_;   
+   std::string trigpart2 = HLTMatchModule2_;
 
    edm::Handle<trigger::TriggerEvent> theTriggerEvent;
    iEvent.getByLabel(theName,theTriggerEvent);

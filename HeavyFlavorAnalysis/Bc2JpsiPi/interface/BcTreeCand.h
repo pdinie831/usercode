@@ -68,6 +68,8 @@ private:
     Double_t           IP3DWrtPV_              ;
     Double_t           IP3DWrtPVSign_          ;
     Double_t           DeltaR_                 ;
+    std::vector<float> TrackDxyPVs_            ;
+    std::vector<float> TrackDzPVs_             ;
 
     // Bc vertex 
     Double_t           ClS_                    ;
@@ -175,6 +177,9 @@ public:
     void   SetIP3DPV              (Double_t       n)          {   IP3DWrtPV_              = n ;}
     void   SetIP3DPVSign          (Double_t       n)          {   IP3DWrtPVSign_          = n ;}
     void   SetDeltaR              (Double_t       n)          {   DeltaR_                 = n ;}
+    void   SetTrackDxyPVs         (std::vector<float> n)      {   TrackDxyPVs_            = n ;}
+    void   SetTrackDzPVs          (std::vector<float> n)      {   TrackDzPVs_             = n ;}
+
 
     // Bc vertex 
     void   SetClS                 (Double_t       n)          {   ClS_                    = n ;}
@@ -278,6 +283,8 @@ public:
     Double_t                GetIP3DPV()                  {   return  IP3DWrtPV_           ;}
     Double_t                GetIP3DPVSign()              {   return  IP3DWrtPVSign_       ;}
     Double_t                GetDeltaR()                  {   return  DeltaR_              ;}
+    std::vector<float>      GetTrackDxyPVs()             {   return  TrackDxyPVs_         ;}
+    std::vector<float>      GetTrackDzPVs()              {   return  TrackDzPVs_          ;}
 
     // Bc vertex 
     Double_t                GetClS()                     {   return  ClS_                 ;}
@@ -380,7 +387,9 @@ BcTreeCand(const BcTreeCand &orig) : TObject(orig)
     IP3DWrtPV_              =  orig.IP3DWrtPV_              ;
     IP3DWrtPVSign_          =  orig.IP3DWrtPVSign_          ;
     DeltaR_                 =  orig.DeltaR_                 ;
-
+    TrackDxyPVs_            =  orig.TrackDxyPVs_            ;
+    TrackDzPVs_             =  orig.TrackDzPVs_             ;
+    
     // Bc vertex  ;
     ClS_                    =  orig.ClS_                    ;
     El2DWrtBS_              =  orig.El2DWrtBS_              ;

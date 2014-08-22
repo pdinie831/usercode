@@ -91,9 +91,7 @@ class Bc2JpsiPi : public edm::EDAnalyzer {
       virtual void  			beginJob() ;
       virtual void  			analyze(                const edm::Event&, 
                                            				const edm::EventSetup&  							);
-      void    	    			acquireInputParameters(	void                   								);
       void          			MonteCarloStudies(     	const edm::Event&       							);
-      bool          			passPioncuts(			reco::TrackRef pionCand								);
       void          			checkHLT(				const edm::Event& iEvent							);
       
       virtual void  			endJob() ;
@@ -104,12 +102,41 @@ class Bc2JpsiPi : public edm::EDAnalyzer {
       BcTree *BcTree_;
 	
       // These declarations must be in this order to avoid compiler warnings
-	  bool boolTrg_;  
-      std::vector<std::string> inputDouble_;
+	  bool         boolTrg_            ;  
+	  double       cut_PtMu_           ;
+	  double       cut_PtTrk_          ;
+	  double       cut_PtJpsi_         ;
+	  double       cut_ClPV_           ;
+	  double       cut_ClJpsi_         ;
+	  double       cut_ClBc_           ;
+	  double       cut_EtaMu_          ;
+	  double       cut_EtaPi_          ;
+	  double       cut_JpsiMassWindow_ ;
+      double       cut_HLTMatch_       ;
+	  double       cut_TrkChi2_        ;
+      unsigned int cut_NPixHits_       ;
+      unsigned int cut_NTrkHits_       ;
+      
+      std::string      MCID_             ;
+      std::string      HLTname1_         ;
+      std::string      HLTname2_         ;
+      std::string      HLTname3_         ;
+      std::string      HLTname4_         ;
+
+      std::string      HLTnameReference1_;
+      std::string      HLTnameReference2_;
+      std::string      HLTMatchModule1_  ;
+      std::string      HLTMatchModule2_  ;
+      std::string      HLTMatchName_     ;
+          
+	  bool      doGenMC_            ;  
+
+      std::string      filename_  ;
+
       std::vector<std::string> inputString_;
       edm::InputTag 	   thePVs_;
       edm::InputTag 	   thebeamspot_;
-	  // End of mandatory alphabetic order 
+      edm::InputTag 	   trackCollection_;
 	
 	  int runNumber;
 	

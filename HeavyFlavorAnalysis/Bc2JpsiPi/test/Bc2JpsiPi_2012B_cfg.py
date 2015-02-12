@@ -27,7 +27,7 @@ from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
 if dataType == "data":
 	print lineno(), " "
 	print lineno(), "Acquiring input DATA files list"
-	process.GlobalTag.globaltag = 'FT_53_V21_AN4::All'
+	process.GlobalTag.globaltag = 'FT_53_V21_AN6::All'
 	from HeavyFlavorAnalysis.Bc2JpsiPi.dataRunList_cfi       import *
 else:
 	print lineno(), " "

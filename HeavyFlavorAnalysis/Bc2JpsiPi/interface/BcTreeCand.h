@@ -75,6 +75,8 @@ private:
 
     // Bc vertex 
     Double_t           ClS_                    ;
+    Double_t           BcVtxChi2_              ;
+    Double_t           BcVtxNdof_              ;
     Double_t           BcVtxPosition_[3]       ;
     Double_t           BcVtxCovariance_[9]     ;
     Double_t           El2DWrtBS_              ;
@@ -187,6 +189,8 @@ public:
 
     // Bc vertex 
     void   SetClS                 (Double_t       n)          {   ClS_                    = n ;}
+    void   SetBcVtxChi2           (Double_t       n)          {   BcVtxChi2_              = n ;}
+    void   SetBcVtxNdof           (Double_t       n)          {   BcVtxNdof_              = n ;}
     void   SetEl2DWrtBS           (Double_t       n)          {   El2DWrtBS_              = n ;}
     void   SetEls2DWrtBS          (Double_t       n)          {   Els2DWrtBS_             = n ;}
     void   SetSigma2DWrtBS        (Double_t       n)          {   Sigma2DWrtBS_           = n ;}
@@ -294,6 +298,8 @@ public:
 
     // Bc vertex 
     Double_t                GetClS()                     {   return  ClS_                 ;}
+    Double_t                GetBcVtxChi2()               {   return  BcVtxChi2_           ;}
+    Double_t                GetBcVtxNdof()               {   return  BcVtxNdof_           ;}
     Double_t                GetEl2DWrtBS()               {   return  El2DWrtBS_           ;}
     Double_t                GetEls2DWrtBS()              {   return  Els2DWrtBS_          ;}
     Double_t                GetSigma2DWrtBS()            {   return  Sigma2DWrtBS_        ;}
@@ -400,6 +406,8 @@ BcTreeCand(const BcTreeCand &orig) : TObject(orig)
     
     // Bc vertex  ;
     ClS_                    =  orig.ClS_                    ;
+    BcVtxChi2_              =  orig.BcVtxChi2_              ;
+    BcVtxNdof_              =  orig.BcVtxNdof_              ;
     El2DWrtBS_              =  orig.El2DWrtBS_              ;
     Els2DWrtBS_             =  orig.Els2DWrtBS_             ;
     Sigma2DWrtBS_           =  orig.Sigma2DWrtBS_           ;
@@ -414,7 +422,7 @@ BcTreeCand(const BcTreeCand &orig) : TObject(orig)
     Cos3DWrtLongPV_         =  orig.Cos3DWrtLongPV_         ;
 
     // Jpsi vertex 
-    ClJpsi_                 =  orig.ClS_                    ;
+    ClJpsi_                 =  orig.ClJpsi_                 ;
     ElsigJpsi_              =  orig.ElsigJpsi_              ;
     CosJpsi_                =  orig.CosJpsi_                ;
 

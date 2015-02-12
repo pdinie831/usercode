@@ -405,6 +405,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
         ClosestApproachInRPhi cApp;
         cApp.calculate(muPTS.theState(), muMTS.theState());
+        if( !cApp.status())        continue;  
         if (!cApp.status() || cApp.distance() > 0.5) continue;
         DCA = cApp.distance();
       }
@@ -418,7 +419,7 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       tTrMu.push_back(tTrackmuM);
       mumuVertex = fitterMuMu.vertex(tTrMu);
       if(!mumuVertex.isValid())                                                     continue;
-     
+      
       //Evaluate Jpsi L/Sigma and cosine
       math::XYZVector pperp(refMuP->px() + refMuM->px(), refMuP->py() + refMuM->py(), 0.);
       GlobalError JpsiVertexError = mumuVertex.positionError();
@@ -561,6 +562,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         reco::TransientTrack myTrk = BcCand->refittedTransientTrack();
         double ClBcVtx = ChiSquaredProbability((double)(BcVertex->chiSquared()),(double)(BcVertex->degreesOfFreedom()));
+        double BcVtxChi2 = BcVertex->chiSquared();
+        double BcVtxNdof = BcVertex->degreesOfFreedom();
         h1_["Bcvtxcl"]-> Fill(ClBcVtx);
         if (ClBcVtx <= cut_ClBc_)                                           continue ;
 
@@ -857,6 +860,8 @@ void Bc2JpsiPi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         theNewCand.SetTrackDzPVs          (pionDz                                                             );
         // Bc vertex   
         theNewCand.SetClS                 (ClBcVtx                                                            );
+        theNewCand.SetBcVtxChi2           (BcVtxChi2                                                          );
+        theNewCand.SetBcVtxNdof           (BcVtxNdof                                                          );
         theNewCand.SetEl2DWrtBS           (LBcBSXY                                                            );
         theNewCand.SetEls2DWrtBS          (ElsBcBSXY                                                          );
         theNewCand.SetSigma2DWrtBS        (LBcBSErr                                                           );
@@ -1018,6 +1023,7 @@ void Bc2JpsiPi::endJob() {
 void Bc2JpsiPi::MonteCarloStudies(const edm::Event& iEvent)
 {
 	if( iEvent.isRealData() ) {return ;}
+// 	std::cout << "entering mc studies" << std::endl;
 	bool isBc = false ;
 	bool isBp = false ;
 	int  id;
@@ -1132,11 +1138,13 @@ void Bc2JpsiPi::MonteCarloStudies(const edm::Event& iEvent)
       if(boolJpsi && boolpi) boolMC = true;
     } // end MonteCarlo loop
 
+//     if (!boolMC) return;
     double ptotmup = sqrt(p_muP.Px()*p_muP.Px() + p_muP.Py()*p_muP.Py() + p_muP.Pz()*p_muP.Pz());
     double ptotmum = sqrt(p_muM.Px()*p_muM.Px() + p_muM.Py()*p_muM.Py() + p_muM.Pz()*p_muM.Pz());
     double ptotpi  = sqrt(p_pi.Px()*p_pi.Px()   + p_pi.Py()*p_pi.Py()   + p_pi.Pz()*p_pi.Pz());
     p_jpsi         = p_muP + p_muM;
 
+    h1_["BCPT"       ] -> Fill(p_Bc.Perp());
     h1_["PTOTMUP"    ] -> Fill(ptotmup);
     h1_["PTOTMUM"    ] -> Fill(ptotmum);
     h1_["PTOTPI"     ] -> Fill(ptotpi);

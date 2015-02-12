@@ -6,7 +6,7 @@ secFiles  = cms.untracked.vstring()
 readFiles.extend( 
 
  [
- 'file:/gwteray/users/fiorendi/MC2012/JpsiPi/00D5BBEE-C04D-E311-82DD-848F69FD4592.root'
+ 'file:/gwteray/users/fiorendi/dataReplica/MC2012/BpJpsiK_RD/72A9278A-0407-E411-8F69-20CF305B0508.root'
  ] );
 
 secFiles.extend( [  ] )

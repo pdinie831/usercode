@@ -22,7 +22,7 @@
 
 #include "TBranch.h"
 #include "TLorentzVector.h"
-#include "interface/BcTree.h"
+#include "../interface/BcTree.h"
 
 //constants
 double JpsiMass = 3.096916;

@@ -1,5 +1,5 @@
 /* 
-g++ -o ntupleMCSkim ntupleMCSkim.cc dictionary/BcTreeDictionary.cc BcTree.cc -I interface/ -I dictionary/ `root-config --cflags --libs`
+g++ -o ntupleMCSkim ntupleMCSkim.cc ../src/BcTreeDictionary.cc ../src/BcTree.cc -I ../interface/ -I ../src/ `root-config --cflags --libs`
 */
 // Skim ntuples to plain tree
 //
@@ -69,9 +69,6 @@ void Analysis(int argc, char** argv) {
   TH1F*HTrueNI          = new TH1F("HTrueNI"           ,"HTrueNI"                      ,    600,   0.  ,   60. );
   TH1F*HNtrk            = new TH1F("HNtrk"             ,"Ntrk"                         ,   1500,   0.  , 1500. );
   TH1F*HNprim           = new TH1F("HNprim"            ,"Nprim"                        ,     60,   0.  ,  60.  );
-  TH1F*HTrueNIW         = new TH1F("HTrueNIW"          ,"HTrueNIW"                     ,    600,   0.  ,   60. );
-  TH1F*HNtrkW           = new TH1F("HNtrkW"            ,"NtrkW"                        ,   1500,   0.  , 1500. );
-  TH1F*HNprimW          = new TH1F("HNprimW"           ,"NprimW"                       ,     60,   0.  ,  60.  );
   TH1F*HNumJPsi         = new TH1F("HNumJPsi"          ,"NumJPsi"                      ,     10,   0.  ,  10.  );
 
   ControlPlots->cd(); 
@@ -106,17 +103,6 @@ void Analysis(int argc, char** argv) {
   TH1::AddDirectory(oldAddDir);
 
 //end plots --------------------------------------------------------------------------
-  TFile * FilePU = TFile::Open("/gwpool/users/fiorendi/Dottorato/2012/CMSSW_5_3_7_patch5/src/HeavyFlavorAnalysis/Bc2JpsiPi/test/weightHisto.root","READ");
-  if(!FilePU){
-    std::cout << "PU File not found!!!" << std::endl;
-    return;
-  }
-  TH1F* hPU = (TH1F*) FilePU->Get("ComputedWeights");
-  if(!hPU){
-    std::cout << "PU Histogram not found!!!" << std::endl;
-    return;
-  }
-
 
   TFile * FileBc = TFile::Open(InputFile,"READ");
   if(!FileBc){
@@ -143,7 +129,6 @@ void Analysis(int argc, char** argv) {
   signalTree->Branch("LBlk"            ,    &LBlk                );
   signalTree->Branch("Event"           ,    &Event               );
   signalTree->Branch("TrueNI"          ,    &TrueNI              );
-  signalTree->Branch("w"               ,    &w                   );
   
   signalTree->Branch("TauGen"          ,    &TauGen              );
   signalTree->Branch("BcGenPt"         ,    &BcGenPt             );
@@ -240,7 +225,6 @@ void Analysis(int argc, char** argv) {
   for (Int_t eventNo=0; eventNo < nentries; eventNo++)
   {
     ClearEventVariables();
-//     std::cout << "event:" << eventNo << std::endl;
     Int_t IgetEvent   = TTBcTree->GetEvent(eventNo);
     fBcTreeHeader     = BcTree_ ->GetBcTreeHeader();
     fBcTreeArrayCand  = BcTree_ ->GetBcTreeArrayCand();
@@ -259,14 +243,6 @@ void Analysis(int argc, char** argv) {
     HNtrk     -> Fill( Ntrk         );
     HNprim    -> Fill( Nprim        );
 
-    //Get PU weight
-    int puBin = hPU->FindBin(TrueNI);
-    w = hPU -> GetBinContent(puBin); 
-
-    HTrueNIW  -> Fill( TrueNI, w    );
-    HNtrkW    -> Fill( Ntrk  , w    );
-    HNprimW   -> Fill( Nprim , w    );
-    
     BcGen   = *fBcTreeGenCand -> GetBcPi( );
     BcGenPt = BcGen.Pt();
     BcGenY  = BcGen.Rapidity();

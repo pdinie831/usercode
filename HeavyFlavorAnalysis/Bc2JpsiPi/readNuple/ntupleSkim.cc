@@ -1,5 +1,5 @@
 /* 
-g++ -o ntupleSkim ntupleSkim.cc dictionary/BcTreeDictionary.cc BcTree.cc -I interface/ -I dictionary/ `root-config --cflags --libs`
+g++ -o ntupleSkim ntupleSkim.cc ../src/BcTreeDictionary.cc ../src/BcTree.cc -I ../interface/ -I ../src/ `root-config --cflags --libs`
 */
 // Skim ntuples to plain tree
 //

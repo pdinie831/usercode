@@ -357,7 +357,7 @@ void Analysis(int argc, char** argv) {
 
         T_JpsiEta          [countBcCand] = Jpsi.Eta()                          ;                              
         T_JpsiPhi          [countBcCand] = Jpsi.Phi()                          ;  
-        T_JpsiM            [countBcCand] = Jpsi.M()                            ;  
+        T_JpsiM            [countBcCand] = JpsiV.M()                           ;  
         T_JpsiPt           [countBcCand] = Jpsi.Pt()                           ;
         T_ElsigJpsi        [countBcCand] = _BcTreeCand->GetElsigJpsi()         ;     
         T_ClJpsi           [countBcCand] = _BcTreeCand->GetClJpsi()            ;     
